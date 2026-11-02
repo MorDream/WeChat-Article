@@ -34,7 +34,7 @@ def main() -> int:
     print("-" * 46)
 
     if not appid or not secret:
-        print("请先在 .env 里补全这两项，再去后台「设置与开发 - 基本配置」核对")
+        print("请先在 .env 里补全这两项，AppID/AppSecret 到微信开发者平台「基础信息 / 开发密钥」核对")
         return 1
 
     client = MPClient(appid, secret, ROOT / ".cache")
@@ -48,9 +48,10 @@ def main() -> int:
         if exc.errcode == 40164:
             print()
             print("照这个做：")
-            print("  1. 登录 mp.weixin.qq.com")
-            print("  2. 设置与开发 → 基本配置 → 找到「IP 白名单」")
-            print("  3. 把上面提示里的 IP 加进去，保存后再跑一次本脚本")
+            print("  1. 打开 https://developers.weixin.qq.com 并登录")
+            print("  2. 左侧「我的业务与服务」选中你的公众号")
+            print("  3. 找到「API IP 白名单」，把上面提示里的 IP 加进去")
+            print("  4. 保存后再跑一次本脚本")
         return 2
 
     ok = True
