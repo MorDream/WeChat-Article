@@ -25,10 +25,13 @@ copy .env.example .env      # 然后填写 WX_APPID 和 WX_APPSECRET
 # 3. 自检（会告诉你 IP 白名单加哪一个）
 python check.py
 
-# 4. 本地预览排版，不碰接口
+# 4. 生成封面（900x383，本地渲染，不依赖 AI）
+python make_cover.py "文章标题" --sub "一句话副标题" --brand "猛虎传说的温暖角落" -o drafts/cover.png
+
+# 5. 本地预览排版，不碰接口
 python push.py drafts/示例稿件.md --dry-run
 
-# 5. 正式推草稿
+# 6. 正式推草稿
 python push.py drafts/示例稿件.md --cover drafts/cover.png
 ```
 
@@ -52,12 +55,13 @@ source_url: https://原文链接（可空）
 ## 文件说明
 
 ```
-wxpub.py    接口封装 + Markdown 排版（token 缓存、素材上传、草稿写入）
-push.py     命令行入口：稿件 → 草稿箱
-check.py    接入自检：凭证、IP 白名单、草稿权限
-drafts/     每天生成的稿件和封面
-topics/     选题池
-docs/       后台配置步骤
+wxpub.py      接口封装 + Markdown 排版（token 缓存、素材上传、草稿写入）
+push.py       命令行入口：稿件 → 草稿箱
+check.py      接入自检：凭证、IP 白名单、草稿权限
+make_cover.py 封面图生成（900×383，本地渲染）
+drafts/       每天生成的稿件和封面
+topics/       选题池
+docs/         后台配置步骤
 ```
 
 ## 常见报错
