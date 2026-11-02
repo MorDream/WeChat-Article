@@ -55,13 +55,49 @@ source_url: https://原文链接（可空）
 ## 文件说明
 
 ```
-wxpub.py      接口封装 + Markdown 排版（token 缓存、素材上传、草稿写入）
-push.py       命令行入口：稿件 → 草稿箱
-check.py      接入自检：凭证、IP 白名单、草稿权限
-make_cover.py 封面图生成（900×383，本地渲染）
-drafts/       每天生成的稿件和封面
-topics/       选题池
-docs/         后台配置步骤
+wxpub.py        接口封装 + Markdown 排版（token 缓存、素材上传、草稿写入）
+push.py         命令行入口：稿件 → 草稿箱
+check.py        接入自检：凭证、IP 白名单、草稿权限
+make_cover.py   封面图生成（900×383，本地渲染）
+make_diagram.py 讲解示意图生成（JSON 驱动的流程图）
+drafts/         稿件、封面、论文配图、示意图定义
+topics/         选题池与经验沉淀
+docs/           后台配置步骤
+```
+
+## 一篇稿件怎么来
+
+以论文解读为例：
+
+```bash
+# 1. 抓论文原图和细节
+curl -x http://127.0.0.1:7892 "https://arxiv.org/html/<id>" -o /tmp/p.html
+# 从 <img src> 里挑图，下载到 drafts/assets/
+
+# 2. 画讲解示意图
+python make_diagram.py drafts/diagrams/pet.json -o drafts/assets/diag-pet.png
+
+# 3. 出封面
+python make_cover.py "标题" --sub "副标题" --brand "猛虎传说的温暖角落" -o drafts/cover.png
+
+# 4. 本地预览 → 推草稿箱
+python push.py drafts/2026-11-02-tango.md --dry-run
+python push.py drafts/2026-11-02-tango.md --cover drafts/cover.png
+```
+
+取图、写稿、排版这三步由定时任务自动完成，人只负责最后在手机上点群发。
+
+示意图用 JSON 描述，改文案不用动代码：
+
+```json
+{
+  "title": "图的标题",
+  "nodes": [
+    {"title": "第一行", "sub": "第二行小字"},
+    {"title": "重点节点", "sub": "带橙色底", "accent": true}
+  ],
+  "note": "底部说明"
+}
 ```
 
 ## 常见报错

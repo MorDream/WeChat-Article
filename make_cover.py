@@ -43,6 +43,39 @@ def load_font(size: int, bold: bool = False) -> ImageFont.FreeTypeFont:
     return ImageFont.load_default()
 
 
+PUNCT = "，。、；：！？,.;:!?"
+
+
+def split_at_punct(text: str, font: ImageFont.FreeTypeFont, max_w: int) -> list[str] | None:
+    """优先在标点处断成两行，读起来比在词中间断开自然。"""
+    best = None
+    for i, ch in enumerate(text[:-1]):
+        if ch not in PUNCT:
+            continue
+        head, tail = text[:i + 1], text[i + 1:]
+        if font.getlength(head) <= max_w and font.getlength(tail) <= max_w:
+            diff = abs(font.getlength(head) - font.getlength(tail))
+            if best is None or diff < best[0]:
+                best = (diff, [head, tail])
+    return best[1] if best else None
+
+
+def split_balanced(text: str, font: ImageFont.FreeTypeFont, k: int) -> list[str]:
+    """把标题均分成 k 行，避免出现「最后一行只剩两三个字」的难看断法。"""
+    total = font.getlength(text)
+    target = total / k
+    lines: list[str] = []
+    cur = ""
+    for ch in text:
+        cur += ch
+        if font.getlength(cur) >= target and len(lines) < k - 1:
+            lines.append(cur)
+            cur = ""
+    if cur:
+        lines.append(cur)
+    return lines
+
+
 def wrap(text: str, font: ImageFont.FreeTypeFont, max_width: int) -> list[str]:
     lines: list[str] = []
     current = ""
@@ -66,11 +99,23 @@ def render(title: str, sub: str = "", brand: str = "", accent: str = ACCENT,
     margin_x = 84
     max_text_width = SIZE[0] - margin_x - 72
 
-    # 标题：从 44px 起，太长就逐级缩小
-    for size in (44, 40, 36, 32, 28):
-        title_font = load_font(size, bold=True)
-        lines = wrap(title, title_font, max_text_width)
-        if sum(title_font.getlength(ln) for ln in lines) / max(len(lines), 1) <= max_text_width and len(lines) <= 3:
+    # 标题：从 44px 起逐级缩小，优先用尽量少的行数，且每行宽度均衡
+    size, lines, title_font = 28, wrap(title, load_font(28, bold=True), max_text_width), load_font(28, bold=True)
+    for candidate in (44, 40, 36, 32, 28):
+        f = load_font(candidate, bold=True)
+        picked = None
+        if f.getlength(title) <= max_text_width:
+            picked = [title]
+        else:
+            picked = split_at_punct(title, f, max_text_width)
+            for k in (2, 3):
+                if picked:
+                    break
+                trial = split_balanced(title, f, k)
+                if len(trial) == k and all(f.getlength(ln) <= max_text_width for ln in trial):
+                    picked = trial
+        if picked:
+            size, lines, title_font = candidate, picked, f
             break
 
     line_height = int(size * 1.42)
