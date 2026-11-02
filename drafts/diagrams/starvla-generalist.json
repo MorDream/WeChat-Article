@@ -1,0 +1,26 @@
+{
+  "type": "compare",
+  "title": "四个专家各练一个榜，还是一个模型练四个榜",
+  "left": {
+    "label": "专家路线",
+    "title": "每个考试单独训一个模型",
+    "points": [
+      "LIBERO 98.8，WidowX 65.9",
+      "Google 机器人 76.6，RoboCasa 53.8",
+      "四个模型、四份权重、四套部署",
+      "换一个环境，就得再练一个"
+    ]
+  },
+  "right": {
+    "label": "通用路线",
+    "title": "一个模型，四个榜一起练",
+    "points": [
+      "LIBERO 97.8，WidowX 70.2",
+      "Google 机器人 79.3，RoboCasa 57.3",
+      "一份权重，四个场子都能上",
+      "只有 LIBERO 差了 1 个点"
+    ],
+    "accent": true
+  },
+  "note": "数字均为成功率（%）。越难的任务绝对值越低，WidowX 六成五已经是这一档的高分"
+}
