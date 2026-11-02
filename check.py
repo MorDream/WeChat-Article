@@ -65,10 +65,24 @@ def main() -> int:
         ok = False
         print(f"[WARN] 草稿接口异常：{exc}")
 
+    # 发表能力：接口调不了，但后台可能有按钮，得让用户知道点哪儿
+    try:
+        can_publish = client.publish_ability()
+        print(f"[{'OK' if can_publish else 'WARN'}] 后台「发表」按钮：{'有，可在草稿箱手动点' if can_publish else '没有，只能群发'}")
+    except WeChatError:
+        can_publish = None
+        print("[--] 发表能力：查询失败，不影响推草稿")
+
     print("-" * 46)
     if ok:
         print("结论：链路已通，可以开始推稿了。")
         print("下一步：python push.py drafts/示例稿件.md --cover 封面.png")
+        print()
+        print("注意：个人订阅号没有发表接口权限（48001），稿子只会进草稿箱。")
+        if can_publish:
+            print("      最后一步在后台点「发表」：电脑 mp.weixin.qq.com → 内容管理 → 草稿箱 → 选中 → 发表")
+        else:
+            print("      最后一步在后台点「群发」，会消耗当天 1 次群发额度。")
     else:
         print("结论：token 通了但草稿接口不通，把上面的报错发我，我按码定位。")
     return 0 if ok else 3

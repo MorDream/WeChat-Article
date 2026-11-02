@@ -25,7 +25,7 @@ ERROR_HINTS = {
     40013: "AppID 不正确，检查 .env 里的 WX_APPID",
     40125: "AppSecret 不正确，去微信开发者平台的「开发密钥」页重新生成",
     40164: "调用来源 IP 不在白名单。去微信开发者平台的「API IP 白名单」把报错里的 IP 加进去",
-    48001: "该接口未授权。个人订阅号没有永久素材/发布接口权限，属正常现象",
+    48001: "该接口未授权。个人订阅号没有发表/群发接口权限，只能推到草稿箱，最后一步在后台手动点",
     45009: "接口调用超过当日限额，等第二天或降低频率",
     41005: "缺少媒体文件数据，通常是封面上传失败",
     40007: "media_id 无效或已过期（临时素材只有 3 天）",
@@ -215,6 +215,17 @@ class MPClient:
         body = json.dumps({"media_id": media_id}).encode()
         _check(_json(self._post("draft/delete", body, token)))
         return True
+
+    def publish_ability(self) -> bool:
+        """查询后台是否有「发表」按钮（is_open=1 表示有）。
+
+        注意：这是后台功能的开关，和 freepublish/submit 接口权限是两回事。
+        个人订阅号通常是后台能点、接口不给调。
+        """
+        token = self.token()
+        body = _http(f"{API_BASE}draft/switch?checkbottom=1&access_token={token}",
+                     data=b"{}", headers={"Content-Type": "application/json"})
+        return bool(_check(_json(body)).get("is_open"))
 
     def submit_publish(self, media_id: str) -> str:
         """尝试直接发布。个人订阅号会被微信拒绝，属预期行为。"""
