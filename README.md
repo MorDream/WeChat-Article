@@ -59,9 +59,10 @@ wxpub.py        接口封装 + Markdown 排版（token 缓存、素材上传、�
 push.py         命令行入口：稿件 → 草稿箱
 check.py        接入自检：凭证、IP 白名单、草稿权限
 make_cover.py   封面图生成（900×383，本地渲染）
-make_diagram.py 讲解示意图生成（JSON 驱动的流程图）
+make_diagram.py 讲解示意图生成（JSON 驱动的流程图 / 左右对比图）
 drafts/         稿件、封面、论文配图、示意图定义
 topics/         选题池与经验沉淀
+styles/         风格档案（小白向写作标准与检查清单）
 docs/           后台配置步骤
 ```
 
@@ -99,6 +100,22 @@ python push.py drafts/2026-11-02-tango.md --cover drafts/cover.png
   "note": "底部说明"
 }
 ```
+
+讲「传统方法 vs 本文方法」时用左右对比布局，横向流程图摆不下这种对照：
+
+```json
+{
+  "type": "compare",
+  "title": "图的标题",
+  "left":  {"label": "旧做法", "title": "一句话结论", "points": ["要点一", "要点二"]},
+  "right": {"label": "新做法", "title": "一句话结论", "points": ["要点一"], "accent": true},
+  "note": "底部说明"
+}
+```
+
+## 写稿标准
+
+见 `styles/风格档案.md`。目标读者是对 AI 有兴趣但不是从业者的人，每个术语第一次出现都要就地解释，数字后面要给参照系。交稿前对着文末检查清单过一遍。
 
 ## 常见报错
 

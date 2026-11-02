@@ -6,7 +6,7 @@
 用法：
     python make_diagram.py drafts/diagrams/pet.json -o drafts/assets/diag-pet.png
 
-JSON 结构：
+流程图的 JSON 结构（默认）：
 {
   "title": "图的标题，可省略",
   "note": "底部小字说明，可省略",
@@ -15,6 +15,15 @@ JSON 结构：
     {"title": "第一行大字", "sub": "第二行小字", "accent": false, "tag": "可选角标"}
   ],
   "arrow_labels": ["节点1→2 的标注", "..."]   // 可省略
+}
+
+左右对比的 JSON 结构（"type": "compare"）：
+{
+  "type": "compare",
+  "title": "图的标题，可省略",
+  "note": "底部小字说明，可省略",
+  "left":  {"label": "旧做法", "title": "一句话结论", "points": ["要点", "..."], "accent": false},
+  "right": {"label": "新做法", "title": "一句话结论", "points": ["要点", "..."], "accent": true}
 }
 """
 
@@ -203,6 +212,90 @@ def render_flow(spec: dict, out: Path) -> Path:
     return out
 
 
+def render_compare(spec: dict, out: Path) -> Path:
+    """左右两栏对比：左边旧做法，右边新做法。高度按文字量自适应。"""
+    left, right = spec["left"], spec["right"]
+    width = spec.get("width", 1120)
+    margin = 56
+    gap = 32
+    pad = 26
+    title = spec.get("title", "")
+    note = spec.get("note", "")
+
+    f_title = font(24)
+    f_label = font(13)
+    f_head = font(20)
+    f_point = font(15)
+
+    top = 24 if title else 0
+    card_top = top + (58 if title else 0) + 16
+    card_w = (width - margin * 2 - gap) // 2
+    inner_w = card_w - pad * 2
+
+    # 先排版，算出两栏各自需要多高
+    layout = []
+    for col in (left, right):
+        head_lines = wrap(col.get("title", ""), f_head, inner_w)[:3]
+        point_lines = [wrap(p, f_point, inner_w - 18) for p in col.get("points", [])]
+        h = pad + 26 + len(head_lines) * 30 + 12
+        for lines in point_lines:
+            h += len(lines) * 23 + 7
+        layout.append((head_lines, point_lines, h + pad - 7))
+
+    card_h = max(h for _, _, h in layout)
+
+    note_block = 46 if note else 0
+    height = card_top + card_h + 24 + note_block
+
+    img = Image.new("RGB", (width, height), BG)
+    d = ImageDraw.Draw(img)
+
+    if title:
+        d.text((margin, 24), title, font=f_title, fill=INK)
+
+    for i, col in enumerate((left, right)):
+        x = margin + i * (card_w + gap)
+        accent = col.get("accent", False)
+        d.rounded_rectangle(
+            [x, card_top, x + card_w, card_top + card_h],
+            radius=12,
+            fill=ACCENT_FILL if accent else NODE_FILL,
+            outline=ACCENT_STROKE if accent else NODE_STROKE,
+            width=2 if accent else 1,
+        )
+
+        head_lines, point_lines, _ = layout[i]
+        y = card_top + pad
+
+        if col.get("label"):
+            tw = f_label.getlength(col["label"]) + 16
+            d.rounded_rectangle([x + pad, y, x + pad + tw, y + 22],
+                                radius=11, fill=ACCENT_STROKE if accent else LINE)
+            d.text((x + pad + 8, y + 4), col["label"], font=f_label,
+                   fill="#FFFFFF" if accent else SUB)
+        y += 26 + 6
+
+        for ln in head_lines:
+            d.text((x + pad, y), ln, font=f_head, fill=INK)
+            y += 30
+        y += 12
+
+        for lines in point_lines:
+            d.ellipse([x + pad, y + 8, x + pad + 5, y + 13],
+                      fill=ACCENT_STROKE if accent else MUTED)
+            for j, ln in enumerate(lines):
+                d.text((x + pad + 18, y + j * 23), ln, font=f_point, fill=SUB)
+            y += len(lines) * 23 + 7
+
+    if note:
+        f_note = font(14)
+        d.text((margin, card_top + card_h + 16), note, font=f_note, fill=MUTED)
+
+    out.parent.mkdir(parents=True, exist_ok=True)
+    img.save(out, "PNG")
+    return out
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description="根据 JSON 生成讲解示意图")
     parser.add_argument("spec", help="JSON 文件路径")
@@ -210,7 +303,8 @@ def main() -> int:
     args = parser.parse_args()
 
     spec = json.loads(Path(args.spec).read_text(encoding="utf-8"))
-    path = render_flow(spec, Path(args.out))
+    renderer = render_compare if spec.get("type") == "compare" else render_flow
+    path = renderer(spec, Path(args.out))
     print(f"示意图已生成：{path}")
     return 0
 

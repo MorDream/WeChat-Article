@@ -209,6 +209,13 @@ class MPClient:
         data = _check(_json(self._post("draft/batchget", body, token)))
         return data.get("item", [])
 
+    def delete_draft(self, media_id: str) -> bool:
+        """删除草稿。改稿重推时用来避免草稿箱里堆重复版本。"""
+        token = self.token()
+        body = json.dumps({"media_id": media_id}).encode()
+        _check(_json(self._post("draft/delete", body, token)))
+        return True
+
     def submit_publish(self, media_id: str) -> str:
         """尝试直接发布。个人订阅号会被微信拒绝，属预期行为。"""
         token = self.token()
