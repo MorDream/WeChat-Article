@@ -132,18 +132,19 @@ def render_flow(spec: dict, out: Path) -> Path:
         raise SystemExit("一行最多 5 个节点，再多请拆成两张图")
 
     width = spec.get("width", 1120)
+    S = float(spec.get("font_scale", 1.0))
     margin = 56
     gap = 44
-    node_h = 112
+    node_h = int(112 * S)
     title = spec.get("title", "")
     note = spec.get("note", "")
     labels = spec.get("arrow_labels", [])
 
     top = 0
-    f_title = font(24)
+    f_title = font(int(24 * S))
     title_block = 0
     if title:
-        title_block = 58
+        title_block = int(58 * S)
         top = 24
 
     node_y = top + title_block + 16
@@ -159,8 +160,8 @@ def render_flow(spec: dict, out: Path) -> Path:
     n = len(nodes)
     node_w = (width - margin * 2 - gap * (n - 1)) // n
 
-    f_node = font(19)
-    f_sub = font(14)
+    f_node = font(int(19 * S))
+    f_sub = font(int(14 * S))
 
     for i, node in enumerate(nodes):
         x = margin + i * (node_w + gap)
@@ -173,7 +174,7 @@ def render_flow(spec: dict, out: Path) -> Path:
             width=1,
         )
         if node.get("tag"):
-            tag_f = font(12)
+            tag_f = font(int(12 * S))
             tw = tag_f.getlength(node["tag"]) + 14
             d.rounded_rectangle([x + 10, node_y + 10, x + 10 + tw, node_y + 28],
                                 radius=9, fill=ACCENT_STROKE)
@@ -183,15 +184,16 @@ def render_flow(spec: dict, out: Path) -> Path:
         t_lines = wrap(node.get("title", ""), f_node, inner_w)[:3]
         s_lines = wrap(node.get("sub", ""), f_sub, inner_w)[:3] if node.get("sub") else []
 
-        block_h = len(t_lines) * 27 + (len(s_lines) * 21 + 8 if s_lines else 0)
+        lh_t, lh_s = int(27 * S), int(21 * S)
+        block_h = len(t_lines) * lh_t + (len(s_lines) * lh_s + int(8 * S) if s_lines else 0)
         ty = node_y + (node_h - block_h) // 2 + 2
         for ln in t_lines:
             d.text((x + node_w // 2 - f_node.getlength(ln) / 2, ty), ln, font=f_node, fill=INK)
-            ty += 27
-        ty += 8
+            ty += lh_t
+        ty += int(8 * S)
         for ln in s_lines:
             d.text((x + node_w // 2 - f_sub.getlength(ln) / 2, ty), ln, font=f_sub, fill=SUB)
-            ty += 21
+            ty += lh_s
 
         if i < n - 1:
             ax1 = x + node_w + 8
@@ -204,8 +206,8 @@ def render_flow(spec: dict, out: Path) -> Path:
                        labels[i], font=lf, fill=MUTED)
 
     if note:
-        f_note = font(14)
-        d.text((margin, node_y + node_h + 18), note, font=f_note, fill=MUTED)
+        f_note = font(int(14 * S))
+        d.text((margin, node_y + node_h + int(18 * S)), note, font=f_note, fill=MUTED)
 
     out.parent.mkdir(parents=True, exist_ok=True)
     img.save(out, "PNG")
@@ -216,16 +218,17 @@ def render_compare(spec: dict, out: Path) -> Path:
     """左右两栏对比：左边旧做法，右边新做法。高度按文字量自适应。"""
     left, right = spec["left"], spec["right"]
     width = spec.get("width", 1120)
+    S = float(spec.get("font_scale", 1.0))
     margin = 56
     gap = 32
-    pad = 26
+    pad = int(26 * S)
     title = spec.get("title", "")
     note = spec.get("note", "")
 
-    f_title = font(24)
-    f_label = font(13)
-    f_head = font(20)
-    f_point = font(15)
+    f_title = font(int(24 * S))
+    f_label = font(int(13 * S))
+    f_head = font(int(20 * S))
+    f_point = font(int(15 * S))
 
     top = 24 if title else 0
     card_top = top + (58 if title else 0) + 16
@@ -237,9 +240,9 @@ def render_compare(spec: dict, out: Path) -> Path:
     for col in (left, right):
         head_lines = wrap(col.get("title", ""), f_head, inner_w)[:3]
         point_lines = [wrap(p, f_point, inner_w - 18) for p in col.get("points", [])]
-        h = pad + 26 + len(head_lines) * 30 + 12
+        h = pad + int(26 * S) + len(head_lines) * int(30 * S) + int(12 * S)
         for lines in point_lines:
-            h += len(lines) * 23 + 7
+            h += len(lines) * int(23 * S) + int(7 * S)
         layout.append((head_lines, point_lines, h + pad - 7))
 
     card_h = max(h for _, _, h in layout)
@@ -277,19 +280,19 @@ def render_compare(spec: dict, out: Path) -> Path:
 
         for ln in head_lines:
             d.text((x + pad, y), ln, font=f_head, fill=INK)
-            y += 30
-        y += 12
+            y += int(30 * S)
+        y += int(12 * S)
 
         for lines in point_lines:
             d.ellipse([x + pad, y + 8, x + pad + 5, y + 13],
                       fill=ACCENT_STROKE if accent else MUTED)
             for j, ln in enumerate(lines):
-                d.text((x + pad + 18, y + j * 23), ln, font=f_point, fill=SUB)
-            y += len(lines) * 23 + 7
+                d.text((x + pad + 18, y + j * int(23 * S)), ln, font=f_point, fill=SUB)
+            y += len(lines) * int(23 * S) + int(7 * S)
 
     if note:
-        f_note = font(14)
-        d.text((margin, card_top + card_h + 16), note, font=f_note, fill=MUTED)
+        f_note = font(int(14 * S))
+        d.text((margin, card_top + card_h + int(16 * S)), note, font=f_note, fill=MUTED)
 
     out.parent.mkdir(parents=True, exist_ok=True)
     img.save(out, "PNG")

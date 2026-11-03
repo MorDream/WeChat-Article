@@ -5,3 +5,4 @@ __pycache__/
 drafts/*.preview.html
 drafts/*.png
 drafts/*.jpg
+.workbuddy/
