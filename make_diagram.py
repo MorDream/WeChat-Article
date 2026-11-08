@@ -240,7 +240,7 @@ def render_compare(spec: dict, out: Path) -> Path:
     for col in (left, right):
         head_lines = wrap(col.get("title", ""), f_head, inner_w)[:3]
         point_lines = [wrap(p, f_point, inner_w - 18) for p in col.get("points", [])]
-        h = pad + int(26 * S) + len(head_lines) * int(30 * S) + int(12 * S)
+        h = pad + int(36 * S) + len(head_lines) * int(30 * S) + int(12 * S)
         for lines in point_lines:
             h += len(lines) * int(23 * S) + int(7 * S)
         layout.append((head_lines, point_lines, h + pad - 7))
@@ -271,12 +271,13 @@ def render_compare(spec: dict, out: Path) -> Path:
         y = card_top + pad
 
         if col.get("label"):
-            tw = f_label.getlength(col["label"]) + 16
-            d.rounded_rectangle([x + pad, y, x + pad + tw, y + 22],
-                                radius=11, fill=ACCENT_STROKE if accent else LINE)
-            d.text((x + pad + 8, y + 4), col["label"], font=f_label,
+            tw = f_label.getlength(col["label"]) + int(18 * S)
+            th = int(28 * S)
+            d.rounded_rectangle([x + pad, y, x + pad + tw, y + th],
+                                radius=th // 2, fill=ACCENT_STROKE if accent else LINE)
+            d.text((x + pad + int(9 * S), y + int(4 * S)), col["label"], font=f_label,
                    fill="#FFFFFF" if accent else SUB)
-        y += 26 + 6
+        y += int(28 * S) + int(8 * S)
 
         for ln in head_lines:
             d.text((x + pad, y), ln, font=f_head, fill=INK)
