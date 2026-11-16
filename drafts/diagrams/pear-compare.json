@@ -1,0 +1,17 @@
+{
+  "type": "compare",
+  "width": 640,
+  "font_scale": 1.5,
+  "title": "两种教法",
+  "left": {
+    "label": "模仿派",
+    "title": "背动作",
+    "points": ["同一场景很熟", "换目标就崩", "指令当摆设"]
+  },
+  "right": {
+    "label": "PEAR",
+    "title": "读懂再动",
+    "points": ["先想清楚", "换目标掉 17 点", "新机器也能用"],
+    "accent": true
+  }
+}
