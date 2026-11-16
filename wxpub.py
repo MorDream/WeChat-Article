@@ -238,7 +238,7 @@ class MPClient:
 # ---------------------------------------------------------------- 排版 ----
 
 DEFAULT_THEME = {
-    "p": "margin:0 0 22px;font-size:15px;line-height:1.9;letter-spacing:.4px;color:#3f3f3f;text-align:justify;",
+    "p": "margin:0 0 22px;font-size:15px;line-height:1.9;color:#3f3f3f;text-align:justify;",
     "h1": "margin:36px 0 20px;font-size:22px;font-weight:600;line-height:1.5;color:#1a1a1a;",
     "h2": "margin:34px 0 18px;padding-left:10px;border-left:3px solid #d97757;font-size:19px;font-weight:600;line-height:1.5;color:#1a1a1a;",
     "h3": "margin:26px 0 14px;font-size:17px;font-weight:600;line-height:1.5;color:#1a1a1a;",
@@ -246,7 +246,7 @@ DEFAULT_THEME = {
     "blockquote": "margin:0 0 22px;padding:14px 16px;border-left:3px solid #e3e3e3;background:#fafafa;color:#8a8a8a;font-size:14px;line-height:1.85;",
     "ul": "margin:0 0 22px;padding-left:22px;",
     "ol": "margin:0 0 22px;padding-left:22px;",
-    "li": "margin:0 0 10px;font-size:15px;line-height:1.9;letter-spacing:.4px;color:#3f3f3f;",
+    "li": "margin:0 0 10px;font-size:15px;line-height:1.9;color:#3f3f3f;",
     "strong": "font-weight:600;color:#1a1a1a;",
     "em": "font-style:normal;color:#8a8a8a;",
     "a": "color:#576b95;text-decoration:none;border-bottom:1px solid #d6dce5;",
@@ -262,6 +262,143 @@ DEFAULT_THEME = {
 AI_NOTICE = (
     "> 本文由 AI 辅助整理与撰写，人工核对后发布。"
 )
+
+
+# ---- 结构化组件（用 ::: 围栏写，渲染成公众号友好的卡片） ----
+# :::lead 写在前面 / :::meta 论文档案 / :::links 链接块 / :::caption 图注
+
+ACCENT = "#d97757"
+CARD_BG = "#faf8f5"
+
+
+def _comp_lead(inner: str, label: str = "写在前面") -> str:
+    """导语卡：正文之前的三四行说明，对应参考稿的「写在前面」。"""
+    label = label or "写在前面"
+    inner = re.sub(
+        r'<p style="[^"]*"',
+        '<p style="margin:0 0 14px;font-size:14px;line-height:1.85;color:#4a4a4a;"',
+        inner,
+    )
+    return (
+        f'<div style="margin:0 0 26px;padding:14px 16px 2px;background:{CARD_BG};border-radius:8px;">'
+        f'<p style="margin:0 0 9px;font-size:12px;letter-spacing:2px;color:{ACCENT};">{label}</p>'
+        f"{inner}</div>"
+    )
+
+
+def _comp_meta(raw: str, label: str = "论文档案") -> str:
+    """档案卡：关键词 / 研究团队 / 一句话结论，每行一个「标签：内容」。"""
+    rows = []
+    for line in raw.splitlines():
+        s = line.strip()
+        if not s:
+            continue
+        key, val = "", s
+        for sep in ("：", ":"):
+            if sep in s:
+                key, val = s.split(sep, 1)
+                break
+        lead = f'<strong style="color:#1a1a1a;">{key}：</strong>' if key else ""
+        rows.append(
+            '<p style="margin:0 0 8px;font-size:13px;line-height:1.85;color:#6b6b6b;">'
+            f"{lead}{val.strip()}</p>"
+        )
+    head = (
+        f'<p style="margin:0 0 9px;font-size:12px;letter-spacing:2px;color:{ACCENT};">{label}</p>'
+        if label != "none"
+        else ""
+    )
+    return (
+        '<div style="margin:0 0 26px;padding:14px 16px 6px;border:1px solid #ecebe8;'
+        f'border-radius:8px;">{head}{"".join(rows)}</div>'
+    )
+
+
+def _comp_links(raw: str, label: str = "") -> str:
+    """链接块：论文 / 项目 / 代码地址，左竖线强调，对应参考稿条目末尾的引用块。"""
+    rows = []
+    for line in raw.splitlines():
+        s = line.strip()
+        if not s:
+            continue
+        s = re.sub(r"\*\*(.+?)\*\*", r'<strong style="color:#1a1a1a;">\1</strong>', s)
+        s = re.sub(
+            r"(https?://[^\s<)）]+)",
+            r'<a href="\1" style="color:#576b95;text-decoration:none;">\1</a>',
+            s,
+        )
+        rows.append(
+            '<p style="margin:0 0 4px;font-size:13px;line-height:1.9;color:#6b6b6b;'
+            f'word-break:break-all;">{s}</p>'
+        )
+    return (
+        f'<div style="margin:0 0 24px;padding:12px 14px 8px;border-left:3px solid {ACCENT};'
+        f'background:{CARD_BG};">{"".join(rows)}</div>'
+    )
+
+
+def _comp_caption(raw: str, label: str = "") -> str:
+    """图注：围栏标签作图题（加粗居中），块内文字作说明（小灰字）。
+
+    :::caption 论文原图（Figure 4b）
+    灰柱是 π0.5，红柱是本文模型。
+    :::
+    没写标签时，块内第一行自动当图题。
+    """
+    lines = [ln.strip() for ln in raw.splitlines() if ln.strip()]
+    head = label.strip()
+    rest = " ".join(lines)
+    if not head:
+        if not lines:
+            return ""
+        head, rest = lines[0], " ".join(lines[1:])
+    base = 'font-size:12px;line-height:1.8;color:#9a9a9a;text-align:justify;'
+    title = ('<strong style="display:block;font-size:13px;color:#1a1a1a;'
+             'text-align:center;margin:0 0 4px;">' + head + "</strong>")
+    return f'<p style="margin:6px 0 24px;{base}">{title}{rest}</p>'
+
+
+COMPONENTS = {
+    "lead": _comp_lead,
+    "meta": _comp_meta,
+    "links": _comp_links,
+    "caption": _comp_caption,
+}
+
+_FENCE_RE = re.compile(r"^:::\s*([a-zA-Z]+)\s*(.*)$")
+
+
+def _extract_components(text: str, render_md) -> tuple[str, list[str]]:
+    """把 ::: 围栏抽成占位符，避免 Markdown 把卡片内容拆散。"""
+    lines, out, blocks = text.split("\n"), [], []
+    i = 0
+    while i < len(lines):
+        m = _FENCE_RE.match(lines[i])
+        if m and m.group(1).lower() in COMPONENTS:
+            kind, arg = m.group(1).lower(), m.group(2).strip()
+            buf, i = [], i + 1
+            while i < len(lines) and lines[i].strip() != ":::":
+                buf.append(lines[i])
+                i += 1
+            i += 1
+            raw = "\n".join(buf)
+            fn = COMPONENTS[kind]
+            blocks.append(fn(render_md(raw), arg) if kind == "lead" else fn(raw, arg))
+            out.append(f"QQCOMP{len(blocks) - 1}QQ")
+        else:
+            out.append(lines[i])
+            i += 1
+    return "\n".join(out), blocks
+
+
+def _inject_components(html: str, blocks: list[str]) -> str:
+    def repl(m: re.Match) -> str:
+        idx = int(m.group(1))
+        return blocks[idx] if idx < len(blocks) else ""
+
+    html = re.sub(r"<p>\s*QQCOMP(\d+)QQ\s*</p>", repl, html)
+    return re.sub(r"QQCOMP(\d+)QQ", repl, html)
+
 
 
 def strip_front_matter(text: str) -> tuple[dict, str]:
@@ -330,6 +467,13 @@ def markdown_to_html(text: str, disclosure: bool = True, theme: str = "default")
             title = m.group(1).strip()
             body = body[m.end():]
 
+    body, comps = _extract_components(
+        body,
+        lambda s: _fix_nested(_apply_styles(
+            md.markdown(s, extensions=["extra", "sane_lists", "nl2br"], output_format="html5"),
+            DEFAULT_THEME,
+        )),
+    )
     html = md.markdown(
         body,
         extensions=["extra", "sane_lists", "nl2br"],
@@ -337,6 +481,7 @@ def markdown_to_html(text: str, disclosure: bool = True, theme: str = "default")
     )
     html = _apply_styles(html, DEFAULT_THEME)
     html = _fix_nested(html)
+    html = _inject_components(html, comps)
 
     if disclosure:
         notice = md.markdown(AI_NOTICE)

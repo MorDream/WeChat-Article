@@ -7,3 +7,4 @@ drafts/*.png
 drafts/*.jpg
 .workbuddy/
 research/
+.tmp/
