@@ -1,0 +1,12 @@
+{
+  "type": "flow",
+  "width": 760,
+  "font_scale": 1.18,
+  "title": "一次代买，四个动作",
+  "nodes": [
+    {"title": "说要买啥", "sub": "一句人话"},
+    {"title": "它去挑货", "sub": "比价、选款"},
+    {"title": "你按指纹", "sub": "先看金额"},
+    {"title": "卡里扣钱", "sub": "真卡号不露", "accent": true}
+  ]
+}

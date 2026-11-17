@@ -1,0 +1,16 @@
+{
+  "type": "compare",
+  "width": 640,
+  "font_scale": 1.5,
+  "left": {
+    "label": "平时的做法",
+    "title": "卡号交给它",
+    "points": ["AI 记住真卡号", "泄露一次就完", "换个网站重填"]
+  },
+  "right": {
+    "label": "这次的做法",
+    "title": "只给替身卡",
+    "points": ["卡组织签发", "真卡留在银行", "两边都看不到"],
+    "accent": true
+  }
+}
