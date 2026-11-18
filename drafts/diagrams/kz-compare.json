@@ -1,0 +1,25 @@
+{
+  "type": "compare",
+  "width": 700,
+  "font_scale": 1.45,
+  "left": {
+    "label": "现在的做法",
+    "title": "整张发过去",
+    "points": [
+      "8000 缩到 2576",
+      "20 像素剩 6 像素",
+      "超限整张拒收"
+    ],
+    "accent": false
+  },
+  "right": {
+    "label": "这篇的建议",
+    "title": "先切再发",
+    "points": [
+      "每块都是原尺寸",
+      "细节回到眼前",
+      "代价是多花几倍"
+    ],
+    "accent": true
+  }
+}
