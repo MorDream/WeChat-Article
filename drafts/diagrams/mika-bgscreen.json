@@ -1,0 +1,25 @@
+{
+  "type": "compare",
+  "width": 640,
+  "font_scale": 1.5,
+  "title": "两种替你点手机的办法",
+  "left": {
+    "label": "以前的助手",
+    "title": "占用你的屏",
+    "points": [
+      "App 拉到前台",
+      "你只能干看着",
+      "任务得排着队"
+    ]
+  },
+  "right": {
+    "label": "Mika 的做法",
+    "title": "另开一块屏",
+    "points": [
+      "你的屏不动",
+      "一边刷一边办",
+      "小窗看进度"
+    ],
+    "accent": true
+  }
+}
