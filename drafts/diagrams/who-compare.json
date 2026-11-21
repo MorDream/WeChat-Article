@@ -1,0 +1,25 @@
+{
+  "type": "compare",
+  "width": 700,
+  "font_scale": 1.45,
+  "left": {
+    "label": "以前的检测器",
+    "title": "量文风特征",
+    "points": [
+      "数用词和句长",
+      "只答像不像 AI",
+      "换个写法就失灵"
+    ],
+    "accent": false
+  },
+  "right": {
+    "label": "这篇测的能力",
+    "title": "认出这个人",
+    "points": [
+      "回想读过的文字",
+      "直接报出名字",
+      "改写后仍认得出"
+    ],
+    "accent": true
+  }
+}
