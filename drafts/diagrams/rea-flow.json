@@ -1,0 +1,10 @@
+{
+  "width": 640,
+  "font_scale": 1.5,
+  "title": "一条视频被拆成三步",
+  "nodes": [
+    {"title": "切成镜头", "sub": "一镜一段"},
+    {"title": "判来路", "sub": "七种标签", "accent": true},
+    {"title": "排复刻", "sub": "怎么重做"}
+  ]
+}

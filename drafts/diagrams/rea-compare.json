@@ -1,0 +1,17 @@
+{
+  "type": "compare",
+  "width": 640,
+  "font_scale": 1.5,
+  "title": "判断一条视频怎么做的，两种办法",
+  "left": {
+    "label": "靠眼睛",
+    "title": "像不像",
+    "points": ["看手指数量", "看字糊不糊", "看画面糙不糙"]
+  },
+  "right": {
+    "label": "靠证据",
+    "title": "量出来",
+    "points": ["数重复画面", "量底噪颗粒", "读文件标签"],
+    "accent": true
+  }
+}
