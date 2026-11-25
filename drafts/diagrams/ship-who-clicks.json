@@ -1,0 +1,24 @@
+{
+  "type": "compare",
+  "width": 640,
+  "font_scale": 1.5,
+  "left": {
+    "label": "以前",
+    "title": "人看完再点",
+    "points": [
+      "等同事有空",
+      "看不懂也点",
+      "慢在等人"
+    ]
+  },
+  "right": {
+    "label": "现在",
+    "title": "AI 也能点",
+    "points": [
+      "照规矩判",
+      "常规改动自批",
+      "人只管例外"
+    ],
+    "accent": true
+  }
+}
