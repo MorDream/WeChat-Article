@@ -1,0 +1,11 @@
+{
+  "title": "一张图是怎么做出来的",
+  "width": 940,
+  "font_scale": 2.0,
+  "nodes": [
+    {"title": "定要求", "sub": "清单先冻结"},
+    {"title": "生成", "sub": "画图或写码"},
+    {"title": "渲染", "sub": "看到真东西"},
+    {"title": "返工", "sub": "只改错处", "accent": true}
+  ]
+}

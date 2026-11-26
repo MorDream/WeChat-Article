@@ -1,0 +1,17 @@
+{
+  "type": "compare",
+  "title": "两种做法",
+  "width": 640,
+  "font_scale": 1.5,
+  "left": {
+    "label": "以前",
+    "title": "全画成像素",
+    "points": ["字和箭头靠猜", "小字常糊成片", "改一处要重画"]
+  },
+  "right": {
+    "label": "这篇",
+    "title": "该写的就写",
+    "points": ["照片插画照画", "图表网页写码", "字是真字能改"],
+    "accent": true
+  }
+}
