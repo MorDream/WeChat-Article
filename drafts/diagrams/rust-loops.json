@@ -1,0 +1,21 @@
+{
+  "width": 640,
+  "font_scale": 1.5,
+  "nodes": [
+    {
+      "title": "沙盒里试",
+      "sub": "几秒一次",
+      "accent": false
+    },
+    {
+      "title": "线上比对",
+      "sub": "小时到天",
+      "accent": false
+    },
+    {
+      "title": "写成规则",
+      "sub": "新活先读",
+      "accent": true
+    }
+  ]
+}
